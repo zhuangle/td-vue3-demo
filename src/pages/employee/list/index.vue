@@ -2,7 +2,7 @@
   <div class="header">
     <t-form ref="form" layout="inline" label-width="40px">
       <t-form-item label="工号" name="empyeeId">
-        <t-input class="searchInput" placeholder="请输入工号" />
+        <t-input class="searchInput" placeholder="请输入工号" disabled />
       </t-form-item>
       <t-form-item label="姓名" name="name">
         <t-input class="searchInput" placeholder="请输入员工姓名" />
@@ -38,7 +38,41 @@
       :confirm-on-enter="true"
       :on-cancel="closeDialog"
     >
-      <p>This is a dialog</p>
+      <div class="dialog__content">
+        <t-form ref="updateform" :data="updateFormData" :colon="true" @reset="onReset" @submit="onSubmit">
+          <t-form-item label="工号" name="employeeCode">
+            <t-input v-model="updateFormData.employeeCode" placeholder="请输入工号"></t-input>
+          </t-form-item>
+          <t-form-item label="姓名" name="name">
+            <t-input v-model="updateFormData.name" placeholder="请输入姓名"></t-input>
+          </t-form-item>
+          <t-form-item label="手机" name="phone">
+            <t-input v-model="updateFormData.phone" placeholder="请输入手机号"></t-input>
+          </t-form-item>
+          <t-form-item label="机构" name="roleId">
+            <t-select v-model="updateFormData.dept" placeholder="请选择机构">
+              <t-option v-for="item in deptList" :key="item.value" :label="item.label" :value="item.value" />
+            </t-select>
+          </t-form-item>
+          <t-form-item label="角色" name="roleId">
+            <t-select v-model="updateFormData.roleId" placeholder="请选择角色">
+              <t-option v-for="item in roleTypeList" :key="item.value" :label="item.label" :value="item.value" />
+            </t-select>
+          </t-form-item>
+          <t-form-item label="性别" name="gender">
+            <t-radio-group v-model="updateFormData.gender">
+              <t-radio value="1">男</t-radio>
+              <t-radio value="2">女</t-radio>
+            </t-radio-group>
+          </t-form-item>
+          <t-form-item label="状态" name="state">
+            <t-radio-group v-model="updateFormData.state">
+              <t-radio value="1">在职</t-radio>
+              <t-radio value="0">离职</t-radio>
+            </t-radio-group>
+          </t-form-item>
+        </t-form>
+      </div>
     </t-dialog>
     <t-dialog
       v-model:visible="delConfirmVisible"
@@ -66,10 +100,18 @@ const stateTypeList = [
   { label: '在职', value: '1' },
   { label: '离职', value: '0' },
 ];
+const deptList = [
+  { label: '人事部', value: '001' },
+  { label: '财务部', value: '002' },
+  { label: '运营部', value: '003' },
+  { label: '后勤部', value: '004' },
+];
+
 const columns = ref([
   { colKey: 'id', title: '员工id' },
   { colKey: 'empyeeId', title: '工号' },
   { colKey: 'name', title: '姓名' },
+  { colKey: 'gender', title: '性别' },
   { colKey: 'dept', title: '机构' },
   { colKey: 'roleId', title: '角色' },
   { colKey: 'state', title: '状态' },
@@ -119,12 +161,12 @@ const delEmployee = (item) => {
 const dialogVisible = ref(false);
 const updateFormData = ref({
   id: '',
-  empyeeId: '',
+  empyeeId: '1045',
   name: '',
   dept: '',
   roleId: '',
-  state: '',
-  createTime: '',
+  state: '1',
+  gender: '1',
 });
 const updateEmployee = (item) => {
   if (item && item.row) {
@@ -135,6 +177,15 @@ const updateEmployee = (item) => {
 };
 const closeDialog = () => {
   dialogVisible.value = false;
+  updateFormData.value = {
+    id: '',
+    empyeeId: '',
+    name: '',
+    dept: '',
+    roleId: '',
+    state: '1',
+    gender: '1',
+  };
 };
 // 删除
 const onConfirmDelete = () => {
