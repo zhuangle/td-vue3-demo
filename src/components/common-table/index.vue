@@ -127,8 +127,8 @@ import { MessagePlugin, PageInfo, PrimaryTableCol, TableRowData } from 'tdesign-
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { getList } from '@/api/list';
-import Trend from '@/components/trend/index.vue';
+// import { getList } from '@/api/list';
+// import Trend from '@/components/trend/index.vue';
 import { prefix } from '@/config/global';
 import { CONTRACT_PAYMENT_TYPES, CONTRACT_STATUS, CONTRACT_TYPES } from '@/constants';
 import { t } from '@/locales';
@@ -221,21 +221,21 @@ const confirmVisible = ref(false);
 const data = ref([]);
 
 const dataLoading = ref(false);
-const fetchData = async () => {
-  dataLoading.value = true;
-  try {
-    const { list } = await getList();
-    data.value = list;
-    pagination.value = {
-      ...pagination.value,
-      total: list.length,
-    };
-  } catch (e) {
-    console.log(e);
-  } finally {
-    dataLoading.value = false;
-  }
-};
+// const fetchData = async () => {
+//   dataLoading.value = true;
+//   try {
+//     const { list } = await getList();
+//     data.value = list;
+//     pagination.value = {
+//       ...pagination.value,
+//       total: list.length,
+//     };
+//   } catch (e) {
+//     console.log(e);
+//   } finally {
+//     dataLoading.value = false;
+//   }
+// };
 
 const deleteIdx = ref(-1);
 const confirmBody = computed(() => {

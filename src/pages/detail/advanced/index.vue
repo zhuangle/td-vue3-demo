@@ -140,7 +140,7 @@ export default {
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import { getPurchaseList } from '@/api/detail';
+// import { getPurchaseList } from '@/api/detail';
 import { t } from '@/locales';
 
 import Product from './components/Product.vue';
@@ -215,18 +215,18 @@ const stepUpdate = () => {
   }, 2000);
 };
 
-const fetchData = async () => {
-  try {
-    const { list } = await getPurchaseList();
-    data.value = list;
-    pagination.value = {
-      ...pagination.value,
-      total: list.length,
-    };
-  } catch (e) {
-    console.log(e);
-  }
-};
+// const fetchData = async () => {
+//   try {
+//     const { list } = await getPurchaseList();
+//     data.value = list;
+//     pagination.value = {
+//       ...pagination.value,
+//       total: list.length,
+//     };
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 onMounted(() => {
   stepUpdate();

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { RouteRecordRaw } from 'vue-router';
 
 import { RouteItem } from '@/api/model/permissionModel';
-import { getMenuList } from '@/api/permission';
+// import { getMenuList } from '@/api/permission';
 import router, { fixedRouterList, homepageRouterList } from '@/router';
 import { store } from '@/store';
 import { transformObjectToRoute } from '@/utils/route';

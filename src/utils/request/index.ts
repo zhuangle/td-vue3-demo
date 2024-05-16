@@ -49,7 +49,7 @@ const transform: AxiosTransform = {
     // 这里逻辑可以根据项目进行修改
     const hasSuccess = data && code === 0;
     if (hasSuccess) {
-      return data.data;
+      return data;
     }
 
     throw new Error(`请求接口错误, 错误码: ${code}`);

@@ -93,7 +93,7 @@ import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
-import { getProjectList } from '@/api/detail';
+// import { getProjectList } from '@/api/detail';
 import { t } from '@/locales';
 import { useSettingStore } from '@/store';
 import { changeChartsTheme } from '@/utils/color';
@@ -155,18 +155,18 @@ const pagination = ref({
   defaultCurrent: 1,
 });
 
-const fetchData = async () => {
-  try {
-    const { list } = await getProjectList();
-    data.value = list;
-    pagination.value = {
-      ...pagination.value,
-      total: list.length,
-    };
-  } catch (e) {
-    console.log(e);
-  }
-};
+// const fetchData = async () => {
+//   try {
+//     const { list } = await getProjectList();
+//     data.value = list;
+//     pagination.value = {
+//       ...pagination.value,
+//       total: list.length,
+//     };
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 const visible = ref(false);
 
 // monitorChart logic

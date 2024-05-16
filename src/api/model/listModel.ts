@@ -1,17 +1,24 @@
-export interface ListResult {
-  list: Array<ListModel>;
+export interface Response<ListResult> {
+  code: number;
+  message: string;
+  data: ListResult;
+  count: number;
+  success: boolean;
 }
-export interface ListModel {
-  adminName: string;
-  amount: string;
-  contractType: number;
-  index: number;
-  name: string;
-  no: string;
-  paymentType: number;
-  status: number;
-  updateTime: Date;
-}
+//  interface ListResult {
+//   list: Array<ListModel>;
+// }
+// interface ListModel {
+//   adminName: string;
+//   amount: string;
+//   contractType: number;
+//   index: number;
+//   name: string;
+//   no: string;
+//   paymentType: number;
+//   status: number;
+//   updateTime: Date;
+// }
 
 export interface CardListResult {
   list: Array<CardList>;
