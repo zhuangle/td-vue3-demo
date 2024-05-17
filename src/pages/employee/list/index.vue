@@ -1,23 +1,46 @@
 <template>
   <div class="employee">
     <div class="header">
-      <t-form ref="form" layout="inline" label-width="40px">
+      <t-form
+        ref="form"
+        layout="inline"
+        label-width="40px"
+        :data="queryParams"
+        @reset="resetQueryForm"
+        @submit="getList(1)"
+      >
         <t-form-item label="工号" name="employeeCode">
-          <t-input v-model="queryParams.employeeCode" class="searchInput" placeholder="请输入工号" />
+          <t-input
+            v-model="queryParams.employeeCode"
+            class="searchInput"
+            placeholder="请输入工号"
+            @enter="getList(1)"
+          />
         </t-form-item>
         <t-form-item label="姓名" name="name">
-          <t-input v-model="queryParams.name" class="searchInput" placeholder="请输入员工姓名" />
+          <t-input v-model="queryParams.name" class="searchInput" placeholder="请输入员工姓名" @enter="getList(1)" />
         </t-form-item>
         <t-form-item label="角色" name="roleId">
-          <t-select v-model="queryParams.roleId" :options="roleTypeList" placeholder="请选择角色"></t-select>
+          <t-select
+            v-model="queryParams.roleId"
+            :options="roleTypeList"
+            placeholder="请选择角色"
+            @change="getList(1)"
+          ></t-select>
         </t-form-item>
         <t-form-item label="状态" name="state">
-          <t-select v-model="queryParams.state" :options="stateTypeList" placeholder="请选择状态"></t-select>
+          <t-select
+            v-model="queryParams.state"
+            :options="stateTypeList"
+            placeholder="请选择状态"
+            @change="getList(1)"
+          ></t-select>
         </t-form-item>
       </t-form>
       <t-form-item>
         <t-space size="small">
-          <t-button theme="success" variant="base" @click="getList(1)">搜索</t-button>
+          <t-button theme="success" variant="base">搜索</t-button>
+          <t-button typ="reset" theme="default">重置</t-button>
           <t-button theme="primary" @click="handleUpdateEmployee">新增</t-button>
         </t-space>
       </t-form-item>
@@ -35,12 +58,6 @@
           <t-space>
             <span v-if="slotProps.row.gender === 1">男</span>
             <span v-if="slotProps.row.gender === 0">女</span>
-          </t-space>
-        </template>
-        <template #state="slotProps">
-          <t-space>
-            <span v-if="slotProps.row.state === 1">在职</span>
-            <span v-if="slotProps.row.state === 0">离职</span>
           </t-space>
         </template>
         <template #roleId="slotProps">
@@ -113,11 +130,19 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ButtonProps, DialogProps, PrimaryTableCol, SelectProps, TableProps, TableRowData } from 'tdesign-vue-next';
+<script setup lang="tsx">
+import { CheckCircleFilledIcon, ErrorCircleFilledIcon } from 'tdesign-icons-vue-next';
+import {
+  ButtonProps,
+  DialogProps,
+  FormProps,
+  PrimaryTableCol,
+  SelectProps,
+  TableProps,
+  TableRowData,
+} from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
-// import { ErrorCircleFilledIcon, CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next';
 import { DelEmployee, GetEmployeeList, UpdateEmployee } from '@/api/employee';
 
 const roleTypeList: SelectProps['options'] = [
@@ -125,10 +150,36 @@ const roleTypeList: SelectProps['options'] = [
   { label: '人事经理', value: 2 },
   { label: '财务经理', value: 3 },
 ];
+
+// state状态定义
 const stateTypeList: SelectProps['options'] = [
   { label: '在职', value: 1 },
   { label: '离职', value: 0 },
 ];
+interface StateListMap {
+  [key: number]: {
+    label: string;
+    value: number;
+    theme: ButtonProps['theme'];
+    icon: JSX.Element;
+  };
+}
+const stateListMap: StateListMap = {
+  1: {
+    label: '在职',
+    value: 1,
+    theme: 'success',
+    icon: <CheckCircleFilledIcon />,
+  },
+  0: {
+    label: '离职',
+    value: 0,
+    theme: 'danger',
+    icon: <ErrorCircleFilledIcon />,
+  },
+};
+
+// 机构定义
 const deptList: SelectProps['options'] = [
   { label: '人事部', value: '001' },
   { label: '财务部', value: '002' },
@@ -136,6 +187,7 @@ const deptList: SelectProps['options'] = [
   { label: '后勤部', value: '004' },
 ];
 
+// 表格配置
 const columns: PrimaryTableCol<TableRowData>[] = [
   { colKey: 'serial-number', width: 80, title: '序号' },
   { colKey: 'employeeCode', title: '工号' },
@@ -144,34 +196,53 @@ const columns: PrimaryTableCol<TableRowData>[] = [
   { colKey: 'phone', title: '手机', width: 140 },
   { colKey: 'dept', title: '机构' },
   { colKey: 'roleId', title: '角色' },
-  { colKey: 'state', title: '状态' },
+  {
+    colKey: 'state',
+    title: '状态',
+    cell: (h, { row }) => {
+      return (
+        <t-tag shape="round" theme={stateListMap[row.state].theme} variant="light-outline">
+          {stateListMap[row.state].icon}
+          {stateListMap[row.state].label}
+        </t-tag>
+      );
+    },
+  },
   { colKey: 'createTime', title: '创建时间' },
   { colKey: 'op', title: '操作' },
 ];
 const tableData = ref<TableProps['data']>([]);
-const queryParams = ref({
+const pagination = ref<TableProps['pagination']>({
+  current: 1,
+  total: 0,
+  pageSize: 10,
+});
+
+const onPageChange: TableProps['onPageChange'] = (pageInfo: any) => {
+  pagination.value = pageInfo.pagination;
+  getList();
+  console.log('onPageChange', pageInfo.pagination);
+};
+
+// 请求列表
+const queryParams: FormProps['data'] = ref({
   employeeCode: '',
   state: '',
   name: '',
   roleId: null,
   page: {},
 });
-const pagination = ref<TableProps['pagination']>({
-  current: 1,
-  total: 0,
-  pageSize: 10,
-});
-const onPageChange: TableProps['onPageChange'] = (pageInfo: any) => {
-  pagination.value = pageInfo.pagination;
-  getList();
-  console.log('onPageChange', pageInfo.pagination);
+// const onReset: FormProps['onReset'] = () => {
+//   MessagePlugin.success('重置成功');
+// };
+const resetQueryForm: FormProps['onReset'] = () => {
+  queryParams.value.reset();
 };
 const getList = async (type?: number) => {
   if (type === 1) {
     pagination.value.current = 1;
   }
   const { current, pageSize } = pagination.value;
-  // console.log('current', paginationInfo, current, pageSize);
   queryParams.value.page = {
     current,
     pageSize,
@@ -187,16 +258,20 @@ const getList = async (type?: number) => {
   tableData.value = response.data;
   pagination.value.total = response.count;
 };
+
 onMounted(() => {
   getList();
 });
+
 const selesctEmployeeItem = ref([]);
+let confirmBody: string = '';
 const handleDelEmployee = (item: any) => {
   delConfirmVisible.value = true;
   const { id } = item.row;
+  confirmBody = `【${item.row.employeeCode}】${item.row.name}`;
   selesctEmployeeItem.value.push(id);
 };
-const confirmBody: string = '';
+
 const dialogVisible = ref(false);
 const updateFormData = ref({
   id: null,
@@ -242,11 +317,9 @@ const onConfirmDelete = async () => {
   const res = await DelEmployee(selesctEmployeeItem.value);
   console.log('res', res);
 };
-const onCancelDel = () => {
-  console.log('onCancelDel');
+const onCancelDel = (e: any) => {
+  console.log('onCancelDel', e);
 };
-
-//
 </script>
 
 <style lang="scss" scoped>
