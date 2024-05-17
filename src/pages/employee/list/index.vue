@@ -86,8 +86,12 @@
       >
         <div class="dialog__content">
           <t-form ref="updateform" :data="updateFormData" :colon="true">
-            <t-form-item v-show="updateFormData.id" label="工号" name="employeeCode">
-              <t-input v-model="updateFormData.employeeCode" disabled></t-input>
+            <t-form-item label="工号" name="employeeCode">
+              <t-input
+                v-model="updateFormData.employeeCode"
+                :disabled="updateFormData.id ? true : false"
+                placeholder="请输入工号"
+              ></t-input>
             </t-form-item>
             <t-form-item label="姓名" name="name">
               <t-input v-model="updateFormData.name" placeholder="请输入姓名"></t-input>
@@ -139,6 +143,7 @@
 </template>
 
 <script setup lang="tsx">
+import deepClone from 'lodash/cloneDeep';
 import { CheckCircleFilledIcon, ErrorCircleFilledIcon } from 'tdesign-icons-vue-next';
 import {
   ButtonProps,
@@ -226,7 +231,7 @@ const columns: PrimaryTableCol<TableRowData>[] = [
     },
   },
   { colKey: 'createTime', title: '创建时间' },
-  { colKey: 'op', title: '操作' },
+  { colKey: 'op', title: '操作', width: 180 },
 ];
 const tableData = ref<TableProps['data']>([]);
 const pagination = ref<TableProps['pagination']>({
@@ -274,7 +279,7 @@ const getList = async (type?: number) => {
     success: boolean;
   }
   const response: GetListRes = await GetEmployeeList(queryParams.value);
-  tableData.value = response.data;
+  tableData.value = response?.data ?? [];
   pagination.value.total = response.count;
 };
 
@@ -306,7 +311,7 @@ const updateFormData = ref({
 const handleUpdateEmployee: ButtonProps['onClick'] = (item: any) => {
   if (item && item.row) {
     console.log('row', item.row);
-    updateFormData.value = item.row;
+    updateFormData.value = deepClone(item.row);
   }
   dialogVisible.value = true;
 };
