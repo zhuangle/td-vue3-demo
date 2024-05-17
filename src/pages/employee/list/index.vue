@@ -4,7 +4,7 @@
       <t-form
         ref="form"
         layout="inline"
-        label-width="40px"
+        label-width="34px"
         :data="queryParams"
         @reset="resetQueryForm"
         @submit="getList(1)"
@@ -36,14 +36,14 @@
             @change="getList(1)"
           ></t-select>
         </t-form-item>
+        <t-form-item>
+          <t-space size="small">
+            <t-button theme="success" variant="base" type="submit">搜索</t-button>
+            <t-button theme="default" type="reset">重置</t-button>
+            <t-button theme="primary" @click="handleUpdateEmployee">新增</t-button>
+          </t-space>
+        </t-form-item>
       </t-form>
-      <t-form-item>
-        <t-space size="small">
-          <t-button theme="success" variant="base">搜索</t-button>
-          <t-button typ="reset" theme="default">重置</t-button>
-          <t-button theme="primary" @click="handleUpdateEmployee">新增</t-button>
-        </t-space>
-      </t-form-item>
     </div>
     <div class="table">
       <t-table
@@ -136,6 +136,7 @@ import {
   ButtonProps,
   DialogProps,
   FormProps,
+  MessagePlugin,
   PrimaryTableCol,
   SelectProps,
   TableProps,
@@ -145,7 +146,7 @@ import { onMounted, ref } from 'vue';
 
 import { DelEmployee, GetEmployeeList, UpdateEmployee } from '@/api/employee';
 
-const roleTypeList: SelectProps['options'] = [
+const roleTypeList = [
   { label: '管理员', value: 1 },
   { label: '人事经理', value: 2 },
   { label: '财务经理', value: 3 },
@@ -180,7 +181,7 @@ const stateListMap: StateListMap = {
 };
 
 // 机构定义
-const deptList: SelectProps['options'] = [
+const deptList = [
   { label: '人事部', value: '001' },
   { label: '财务部', value: '002' },
   { label: '运营部', value: '003' },
@@ -236,7 +237,9 @@ const queryParams: FormProps['data'] = ref({
 //   MessagePlugin.success('重置成功');
 // };
 const resetQueryForm: FormProps['onReset'] = () => {
-  queryParams.value.reset();
+  console.log('query', queryParams.value);
+  MessagePlugin.success('重置成功');
+  getList();
 };
 const getList = async (type?: number) => {
   if (type === 1) {
@@ -325,6 +328,7 @@ const onCancelDel = (e: any) => {
 <style lang="scss" scoped>
 .header {
   display: flex;
+  margin-bottom: 10px;
 
   .searchInput {
     width: 140px;
