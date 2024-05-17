@@ -17,7 +17,7 @@
       </t-form>
       <t-form-item>
         <t-space size="small">
-          <t-button theme="success" variant="base" @click="getList(pagination)">搜索</t-button>
+          <t-button theme="success" variant="base" @click="getList(1)">搜索</t-button>
           <t-button theme="primary" @click="handleUpdateEmployee">新增</t-button>
         </t-space>
       </t-form-item>
@@ -114,9 +114,10 @@
 </template>
 
 <script setup lang="ts">
-import { ButtonProps, DialogProps, SelectProps, TableProps } from 'tdesign-vue-next';
+import { ButtonProps, DialogProps, PrimaryTableCol, SelectProps, TableProps, TableRowData } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
+// import { ErrorCircleFilledIcon, CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next';
 import { DelEmployee, GetEmployeeList, UpdateEmployee } from '@/api/employee';
 
 const roleTypeList: SelectProps['options'] = [
@@ -124,18 +125,18 @@ const roleTypeList: SelectProps['options'] = [
   { label: '人事经理', value: 2 },
   { label: '财务经理', value: 3 },
 ];
-const stateTypeList = [
+const stateTypeList: SelectProps['options'] = [
   { label: '在职', value: 1 },
   { label: '离职', value: 0 },
 ];
-const deptList = [
+const deptList: SelectProps['options'] = [
   { label: '人事部', value: '001' },
   { label: '财务部', value: '002' },
   { label: '运营部', value: '003' },
   { label: '后勤部', value: '004' },
 ];
 
-const columns = ref<TableProps['columns']>([
+const columns: PrimaryTableCol<TableRowData>[] = [
   { colKey: 'serial-number', width: 80, title: '序号' },
   { colKey: 'employeeCode', title: '工号' },
   { colKey: 'name', title: '姓名' },
@@ -146,8 +147,8 @@ const columns = ref<TableProps['columns']>([
   { colKey: 'state', title: '状态' },
   { colKey: 'createTime', title: '创建时间' },
   { colKey: 'op', title: '操作' },
-]);
-let tableData: TableProps['data'] = [];
+];
+const tableData = ref<TableProps['data']>([]);
 const queryParams = ref({
   employeeCode: '',
   state: '',
@@ -155,37 +156,39 @@ const queryParams = ref({
   roleId: null,
   page: {},
 });
-const pagination = ref({
-  defaultPageSize: 10,
+const pagination = ref<TableProps['pagination']>({
+  current: 1,
   total: 0,
-  defaultCurrent: 1,
+  pageSize: 10,
 });
-const onPageChange = (pageInfo: any) => {
-  pagination.value = pageInfo;
-  getList(pageInfo);
-  console.log('onPageChange', pageInfo);
+const onPageChange: TableProps['onPageChange'] = (pageInfo: any) => {
+  pagination.value = pageInfo.pagination;
+  getList();
+  console.log('onPageChange', pageInfo.pagination);
 };
-const getList = async (paginationInfo: any) => {
-  const { current, pageSize } = paginationInfo;
-  console.log('current', paginationInfo, current, pageSize);
+const getList = async (type?: number) => {
+  if (type === 1) {
+    pagination.value.current = 1;
+  }
+  const { current, pageSize } = pagination.value;
+  // console.log('current', paginationInfo, current, pageSize);
   queryParams.value.page = {
     current,
     pageSize,
   };
-  interface Response {
+  interface GetListRes {
     code: number;
     message: string;
     data: object[];
     count: number;
     success: boolean;
   }
-  const response: Response = await GetEmployeeList(queryParams.value);
-  console.log('res', response);
-  tableData = response.data;
+  const response: GetListRes = await GetEmployeeList(queryParams.value);
+  tableData.value = response.data;
   pagination.value.total = response.count;
 };
 onMounted(() => {
-  getList(pagination.value);
+  getList();
 });
 const selesctEmployeeItem = ref([]);
 const handleDelEmployee = (item: any) => {

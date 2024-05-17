@@ -9,6 +9,7 @@
       <menu-content :nav-data="menu" />
       <template #operations>
         <!-- <span :class="versionCls"> {{ !collapsed ? 'TDesign Starter' : '' }} {{ pgk.version }} </span> -->
+        <span :class="versionCls"> {{ pgk.version }} </span>
       </template>
     </t-menu>
     <div :class="`${prefix}-side-nav-placeholder${collapsed ? '-hidden' : ''}`"></div>
@@ -28,8 +29,8 @@ import { getActive, getRoutesExpanded } from '@/router';
 import { useSettingStore } from '@/store';
 import type { MenuRoute, ModeType } from '@/types/interface';
 
-// import pgk from '../../../package.json';
-// import MenuContent from './MenuContent.vue';
+import pgk from '../../../package.json';
+import MenuContent from './MenuContent.vue';
 
 const MIN_POINT = 992 - 1;
 
@@ -96,14 +97,14 @@ const logoCls = computed(() => {
     },
   ];
 });
-// const versionCls = computed(() => {
-//   return [
-//     `version-container`,
-//     {
-//       [`${prefix}-side-nav-dark`]: sideMode.value,
-//     },
-//   ];
-// });
+const versionCls = computed(() => {
+  return [
+    `version-container`,
+    {
+      [`${prefix}-side-nav-dark`]: sideMode.value,
+    },
+  ];
+});
 const menuCls = computed(() => {
   const { showLogo, isFixed, layout } = props;
   return [
