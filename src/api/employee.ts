@@ -6,6 +6,7 @@ const Api = {
   UpdateEmployee: '/employee/update',
   EmployeeInfo: '/employee',
   DelEmployee: '/employee/del',
+  ResetEmployeePassword: '/employee/resetEmployeePassword',
 };
 
 export function GetEmployeeList(params: any) {
@@ -15,20 +16,26 @@ export function GetEmployeeList(params: any) {
   });
 }
 export function UpdateEmployee(params: any) {
-  return request.post<any>({
+  return request.post<Response<any>>({
     url: Api.UpdateEmployee,
     params,
   });
 }
 export function GetEmployeeInfo(params: any) {
-  return request.get<ListResult>({
+  return request.get<Response<any>>({
     url: Api.EmployeeInfo,
     params,
   });
 }
 export function DelEmployee(params: any) {
-  return request.post<ListResult>({
+  return request.post<Response<any>>({
     url: Api.DelEmployee,
+    params,
+  });
+}
+export function ResetEmployeePassword(params: any) {
+  return request.put<Response<any>>({
+    url: Api.ResetEmployeePassword,
     params,
   });
 }

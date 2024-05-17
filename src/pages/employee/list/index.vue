@@ -69,8 +69,9 @@
         </template>
         <template #op="slotProps">
           <t-space>
-            <t-link theme="primary" @click="handleUpdateEmployee(slotProps)">编辑</t-link>
             <t-link theme="danger" @click="handleDelEmployee(slotProps)"> 删除</t-link>
+            <t-link theme="primary" @click="handleUpdateEmployee(slotProps)">编辑</t-link>
+            <t-link theme="default" @click="handleResetEmployeePassword(slotProps)">重置密码</t-link>
           </t-space>
         </template>
       </t-table>
@@ -123,8 +124,15 @@
         v-model:visible="delConfirmVisible"
         header="确认删除选择的员工？"
         :body="confirmBody"
-        :on-cancel="onCancelDel"
+        :on-cancel="closeDelDialogFn"
         @confirm="onConfirmDelete"
+      />
+      <t-dialog
+        v-model:visible="resetPasswordDialogVisible"
+        header="确认要重置当前员工的密码吗？"
+        :body="confirmBody"
+        :on-cancel="closeResetpasswordDialogFn"
+        @confirm="onConfirmResetPassword"
       />
     </div>
   </div>
@@ -144,7 +152,7 @@ import {
 } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
-import { DelEmployee, GetEmployeeList, UpdateEmployee } from '@/api/employee';
+import { DelEmployee, GetEmployeeList, ResetEmployeePassword, UpdateEmployee } from '@/api/employee';
 
 const roleTypeList = [
   { label: '管理员', value: 1 },
@@ -195,12 +203,20 @@ const columns: PrimaryTableCol<TableRowData>[] = [
   { colKey: 'name', title: '姓名' },
   { colKey: 'gender', title: '性别', width: 60 },
   { colKey: 'phone', title: '手机', width: 140 },
-  { colKey: 'dept', title: '机构' },
+  {
+    colKey: 'dept',
+    title: '机构',
+    cell: (h, { row }) => {
+      console.log('h', h, row);
+      return '-';
+    },
+  },
   { colKey: 'roleId', title: '角色' },
   {
     colKey: 'state',
     title: '状态',
     cell: (h, { row }) => {
+      console.log('h', h);
       return (
         <t-tag shape="round" theme={stateListMap[row.state].theme} variant="light-outline">
           {stateListMap[row.state].icon}
@@ -298,6 +314,26 @@ const onSubmitFormData = async () => {
   console.log('onSubmitFormData', onSubmitFormData);
   const res = await UpdateEmployee(updateFormData.value);
   console.log('res', res);
+  if (res.code === 0) {
+    if (updateFormData.value.id) {
+      MessagePlugin.success('修改员工成功');
+    } else {
+      MessagePlugin.success('新增员工成功');
+    }
+    getList();
+    dialogVisible.value = false;
+    updateFormData.value = {
+      id: null,
+      employeeCode: '',
+      name: '',
+      gender: 1,
+      dept: '',
+      phone: '',
+      roleId: null,
+      state: 1,
+      createTime: '',
+    };
+  }
 };
 const closeDialog: DialogProps['onConfirm'] = () => {
   dialogVisible.value = false;
@@ -319,9 +355,39 @@ const onConfirmDelete = async () => {
   console.log('onConfirmDelete');
   const res = await DelEmployee(selesctEmployeeItem.value);
   console.log('res', res);
+  if (res.code === 0) {
+    MessagePlugin.success('删除成功');
+    getList();
+    closeDelDialogFn();
+  }
 };
-const onCancelDel = (e: any) => {
-  console.log('onCancelDel', e);
+const closeDelDialogFn = () => {
+  delConfirmVisible.value = false;
+  selesctEmployeeItem.value = [];
+};
+
+// 重置密码
+const resetItem = ref({
+  id: null,
+});
+const resetPasswordDialogVisible = ref(false);
+const handleResetEmployeePassword = async (item: any) => {
+  console.log('resetEmployeePassword', item.row);
+  resetItem.value = item.row;
+  resetPasswordDialogVisible.value = true;
+};
+const onConfirmResetPassword = async () => {
+  const { id } = resetItem.value;
+  const res = await ResetEmployeePassword({ id });
+  if (res.code === 0) {
+    MessagePlugin.success('重置密码成功');
+    resetPasswordDialogVisible.value = false;
+    resetItem.value = { id: null };
+  }
+};
+const closeResetpasswordDialogFn = () => {
+  resetPasswordDialogVisible.value = false;
+  resetItem.value = { id: null };
 };
 </script>
 
