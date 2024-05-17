@@ -280,7 +280,7 @@ const getList = async (type?: number) => {
   }
   const response: GetListRes = await GetEmployeeList(queryParams.value);
   tableData.value = response?.data ?? [];
-  pagination.value.total = response.count;
+  pagination.value.total = response?.count ?? 0;
 };
 
 onMounted(() => {
