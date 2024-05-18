@@ -23,7 +23,7 @@
         <t-form-item label="角色" name="roleId">
           <t-select
             v-model="queryParams.roleId"
-            :options="roleTypeList"
+            :options="roleList"
             placeholder="请选择角色"
             @change="getList(1)"
           ></t-select>
@@ -106,7 +106,7 @@
             </t-form-item>
             <t-form-item label="角色" name="roleId">
               <t-select v-model="updateFormData.roleId" placeholder="请选择角色">
-                <t-option v-for="item in roleTypeList" :key="item.value" :label="item.label" :value="item.value" />
+                <t-option v-for="item in roleList" :key="item.value" :label="item.label" :value="item.value" />
               </t-select>
             </t-form-item>
             <t-form-item label="性别" name="gender">
@@ -157,13 +157,9 @@ import {
 } from 'tdesign-vue-next';
 import { onMounted, ref } from 'vue';
 
+import { GetDepartmentList } from '@/api/department';
 import { DelEmployee, GetEmployeeList, ResetEmployeePassword, UpdateEmployee } from '@/api/employee';
-
-const roleTypeList = [
-  { label: '管理员', value: 1 },
-  { label: '人事经理', value: 2 },
-  { label: '财务经理', value: 3 },
-];
+import { GetRoleList } from '@/api/role';
 
 // state状态定义
 const stateTypeList: SelectProps['options'] = [
@@ -192,14 +188,6 @@ const stateListMap: StateListMap = {
     icon: <ErrorCircleFilledIcon />,
   },
 };
-
-// 机构定义
-const deptList = [
-  { label: '人事部', value: '001' },
-  { label: '财务部', value: '002' },
-  { label: '运营部', value: '003' },
-  { label: '后勤部', value: '004' },
-];
 
 // 表格配置
 const columns: PrimaryTableCol<TableRowData>[] = [
@@ -282,8 +270,9 @@ const getList = async (type?: number) => {
   tableData.value = response?.data ?? [];
   pagination.value.total = response?.count ?? 0;
 };
-
 onMounted(() => {
+  getRoleList();
+  getDepartmentList();
   getList();
 });
 
@@ -393,6 +382,42 @@ const onConfirmResetPassword = async () => {
 const closeResetpasswordDialogFn = () => {
   resetPasswordDialogVisible.value = false;
   resetItem.value = { id: null };
+};
+
+// 获取机构列表
+let deptList = [
+  { label: '人事部', value: '001' },
+  { label: '财务部', value: '002' },
+  { label: '运营部', value: '003' },
+  { label: '后勤部', value: '004' },
+];
+const getDepartmentList = async () => {
+  const res = await GetDepartmentList();
+  if (res.code === 0) {
+    deptList = res.data.map((item: any) => {
+      return {
+        label: item.name,
+        value: item.id,
+      };
+    });
+  }
+};
+
+let roleList = [
+  { label: '管理员', value: 1 },
+  { label: '人事经理', value: 2 },
+  { label: '财务经理', value: 3 },
+];
+const getRoleList = async () => {
+  const res = await GetRoleList();
+  if (res.code === 0) {
+    roleList = res.data.map((item: any) => {
+      return {
+        label: item.name,
+        value: item.id,
+      };
+    });
+  }
 };
 </script>
 
