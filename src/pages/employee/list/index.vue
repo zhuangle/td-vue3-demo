@@ -20,6 +20,9 @@
         <t-form-item label="姓名" name="name">
           <t-input v-model="queryParams.name" class="searchInput" placeholder="请输入员工姓名" @enter="getList(1)" />
         </t-form-item>
+        <t-form-item label="手机" name="phone">
+          <t-input v-model="queryParams.phone" class="searchInput" placeholder="请输入员工手机号" @enter="getList(1)" />
+        </t-form-item>
         <t-form-item label="角色" name="roleId">
           <t-select
             v-model="queryParams.roleId"
@@ -196,15 +199,8 @@ const columns: PrimaryTableCol<TableRowData>[] = [
   { colKey: 'name', title: '姓名' },
   { colKey: 'gender', title: '性别', width: 60 },
   { colKey: 'phone', title: '手机', width: 140 },
-  {
-    colKey: 'dept',
-    title: '机构',
-    cell: (h, { row }) => {
-      console.log('h', h, row);
-      return '-';
-    },
-  },
-  { colKey: 'roleId', title: '角色' },
+  { colKey: 'deptName', title: '机构' },
+  { colKey: 'roleName', title: '角色' },
   {
     colKey: 'state',
     title: '状态',
@@ -239,6 +235,7 @@ const queryParams: FormProps['data'] = ref({
   employeeCode: '',
   state: '',
   name: '',
+  phone: '',
   roleId: null,
   page: {},
 });
