@@ -297,12 +297,15 @@ const updateFormData = ref({
 const handleUpdateEmployee: ButtonProps['onClick'] = (item: any) => {
   if (item && item.row) {
     console.log('row', item.row);
-    updateFormData.value = deepClone(item.row);
+    const data = deepClone(item.row);
+    delete data.roleName;
+    delete data.deptName;
+    updateFormData.value = data;
   }
   dialogVisible.value = true;
 };
 const onSubmitFormData = async () => {
-  console.log('onSubmitFormData', onSubmitFormData);
+  console.log('onSubmitFormData', updateFormData.value);
   const res = await UpdateEmployee(updateFormData.value);
   console.log('res', res);
   if (res.code === 0) {
@@ -382,16 +385,11 @@ const closeResetpasswordDialogFn = () => {
 };
 
 // 获取机构列表
-let deptList = [
-  { label: '人事部', value: '001' },
-  { label: '财务部', value: '002' },
-  { label: '运营部', value: '003' },
-  { label: '后勤部', value: '004' },
-];
+const deptList = ref<any[]>([]);
 const getDepartmentList = async () => {
   const res = await GetDepartmentList();
   if (res.code === 0) {
-    deptList = res.data.map((item: any) => {
+    deptList.value = res.data.map((item: any) => {
       return {
         label: item.name,
         value: item.id,
@@ -400,15 +398,12 @@ const getDepartmentList = async () => {
   }
 };
 
-let roleList = [
-  { label: '管理员', value: 1 },
-  { label: '人事经理', value: 2 },
-  { label: '财务经理', value: 3 },
-];
+const roleList = ref<any[]>([]);
 const getRoleList = async () => {
   const res = await GetRoleList();
+  console.log('getRoleList', res);
   if (res.code === 0) {
-    roleList = res.data.map((item: any) => {
+    roleList.value = res.data.map((item: any) => {
       return {
         label: item.name,
         value: item.id,
